@@ -19,6 +19,10 @@ commands:
             corepack enable --install-directory $COREPACK_PATH
             yarn install
 
+      - run:
+          name: Install dependencies
+          command: yarn install --frozen-lockfile
+
 jobs:
   lint:
     docker:
@@ -94,6 +98,15 @@ jobs:
           path: ./.junit
       - store_artifacts:
           path: ./.junit
+  security:
+    docker:
+      - image: cimg/node:20.12
+    steps:
+      - checkout
+      - setup
+      - run:
+          name: Security Audit
+          command: yarn audit
 
 workflows:
   main:
@@ -115,6 +128,10 @@ workflows:
             branches:
               ignore: main
       - check-peer:
+          filters:
+            branches:
+              ignore: main
+      - security:
           filters:
             branches:
               ignore: main
